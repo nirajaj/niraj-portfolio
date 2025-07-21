@@ -5,7 +5,7 @@ import { BookOpen, Code, Users, Lightbulb, Target, Rocket } from 'lucide-react';
 
 const LearningJourney = () => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0 }); // Trigger as soon as visible
+  const isInView = useInView(ref, { once: true, amount: 0.3 });
 
   const journeySteps = [
     {
@@ -57,7 +57,7 @@ const LearningJourney = () => {
       <div className="max-w-6xl mx-auto" ref={ref}>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
