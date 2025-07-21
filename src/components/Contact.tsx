@@ -3,6 +3,8 @@ import { useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { Mail, Send, MapPin, Phone, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import emailjs from 'emailjs-com';
+
 
 const Contact = () => {
   const ref = useRef(null);
@@ -22,51 +24,47 @@ const Contact = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("https://formsubmit.co/ajax/niraj1234aj@gmail.com", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json"
-        },
-        body: JSON.stringify({
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID, // replace with your real template ID
+        {
           name: formData.name,
           email: formData.email,
-          subject: formData.subject,
-          message: formData.message
-        })
-      });
+          message: formData.message,
+          title: formData.subject
+        },
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+      );
 
-      if (response.ok) {
-        toast.success("Message sent successfully!");
-        setFormData({ name: '', email: '', subject: '', message: '' });
-      } else {
-        toast.error("Failed to send message.");
-      }
+      toast.success("Message sent successfully!");
+      setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong.");
+      toast.error("Failed to send message.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+
 
   const contactInfo = [
     {
       icon: Mail,
       label: "Email",
       value: "niraj1234aj@gmail.com",
-      href: "mailto:niraj1234aj@gmail.com"
+      href: "mailto:niraj.yadav@email.com"
     },
     {
       icon: Phone,
       label: "Phone",
       value: "+977 9741662305",
-      href: "tel:+9779741662305"
+      href: "tel:+97798XXXXXXXX"
     },
     {
       icon: MapPin,
@@ -107,6 +105,7 @@ const Contact = () => {
                 <MessageCircle className="w-6 h-6" />
                 Let's Connect
               </h3>
+
               <p className="text-foreground/80 mb-8 leading-relaxed">
                 I'm actively seeking internship opportunities and entry-level positions where I can
                 contribute while learning. Whether you have an opportunity, want to discuss a project,
@@ -221,18 +220,43 @@ const Contact = () => {
 
                 <motion.button
                   type="submit"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full py-4 px-6 rounded-lg font-medium text-lg flex items-center justify-center gap-3 transition-all duration-300 btn-glow"
                   disabled={isSubmitting}
+                  whileHover={!isSubmitting ? { scale: 1.02 } : {}}
+                  whileTap={!isSubmitting ? { scale: 0.98 } : {}}
+                  className={`w-full py-4 px-6 rounded-lg font-medium text-lg flex items-center justify-center gap-3 transition-all duration-300 ${isSubmitting
+                      ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                      : 'btn-glow'
+                    }`}
                 >
-                  <Send className="w-5 h-5" />
-                  {isSubmitting ? "Sending..." : "Send Message"}
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5" />
+                      Send Message
+                    </>
+                  )}
                 </motion.button>
               </form>
             </div>
           </motion.div>
         </div>
+
+        {/* Note about backend */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ delay: 1, duration: 0.6 }}
+          className="mt-12 text-center"
+        >
+          <p className="text-sm text-muted-foreground bg-muted/20 rounded-lg p-4 border border-primary/10">
+            <strong>Note:</strong> This contact form is currently a demo. To make it functional,
+            connect to Supabase or another backend service to handle form submissions.
+          </p>
+        </motion.div>
       </div>
     </section>
   );
