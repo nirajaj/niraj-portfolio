@@ -1,10 +1,59 @@
-import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { motion } from 'framer-motion';
+import { useInView } from 'framer-motion';
+import { useRef, useState } from 'react';
 import { Mail, Send, MapPin, Phone, MessageCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Contact = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/niraj1234aj@gmail.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message
+        })
+      });
+
+      if (response.ok) {
+        toast.success("Message sent successfully!");
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        toast.error("Failed to send message.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const contactInfo = [
     {
@@ -58,7 +107,6 @@ const Contact = () => {
                 <MessageCircle className="w-6 h-6" />
                 Let's Connect
               </h3>
-
               <p className="text-foreground/80 mb-8 leading-relaxed">
                 I'm actively seeking internship opportunities and entry-level positions where I can
                 contribute while learning. Whether you have an opportunity, want to discuss a project,
@@ -108,11 +156,7 @@ const Contact = () => {
                 Send Message
               </h3>
 
-              <form
-                action="https://formsubmit.co/niraj1234aj@gmail.com"
-                method="POST"
-                className="space-y-6"
-              >
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
@@ -121,6 +165,8 @@ const Contact = () => {
                     <input
                       type="text"
                       name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors"
                       placeholder="Your name"
@@ -134,6 +180,8 @@ const Contact = () => {
                     <input
                       type="email"
                       name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors"
                       placeholder="your.email@example.com"
@@ -148,6 +196,8 @@ const Contact = () => {
                   <input
                     type="text"
                     name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
                     required
                     className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors"
                     placeholder="Project inquiry / Collaboration / etc."
@@ -160,6 +210,8 @@ const Contact = () => {
                   </label>
                   <textarea
                     name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
                     required
                     rows={5}
                     className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors resize-none"
@@ -167,18 +219,15 @@ const Contact = () => {
                   />
                 </div>
 
-                {/* Hidden Fields for Options */}
-                <input type="hidden" name="_captcha" value="false" />
-                <input type="hidden" name="_next" value="https://www.niraj-yadav.com.np/thankyou.html" />
-
                 <motion.button
                   type="submit"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="w-full py-4 px-6 rounded-lg font-medium text-lg flex items-center justify-center gap-3 transition-all duration-300 btn-glow"
+                  disabled={isSubmitting}
                 >
                   <Send className="w-5 h-5" />
-                  Send Message
+                  {isSubmitting ? "Sending..." : "Send Message"}
                 </motion.button>
               </form>
             </div>
