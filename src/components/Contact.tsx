@@ -1,70 +1,23 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
 import { Mail, Send, MapPin, Phone, MessageCircle } from 'lucide-react';
-import { toast } from 'sonner';
-import emailjs from 'emailjs-com';
-
 
 const Contact = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
-
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      await emailjs.send(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID, // replace with your real template ID
-        {
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
-          title: formData.subject
-        },
-        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-      );
-
-      toast.success("Message sent successfully!");
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to send message.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-
 
   const contactInfo = [
     {
       icon: Mail,
       label: "Email",
       value: "niraj1234aj@gmail.com",
-      href: "mailto:niraj.yadav@email.com"
+      href: "mailto:niraj1234aj@gmail.com"
     },
     {
       icon: Phone,
       label: "Phone",
       value: "+977 9741662305",
-      href: "tel:+97798XXXXXXXX"
+      href: "tel:+9779741662305"
     },
     {
       icon: MapPin,
@@ -155,7 +108,11 @@ const Contact = () => {
                 Send Message
               </h3>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form
+                action="https://formsubmit.co/niraj1234aj@gmail.com"
+                method="POST"
+                className="space-y-6"
+              >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
@@ -164,8 +121,6 @@ const Contact = () => {
                     <input
                       type="text"
                       name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors"
                       placeholder="Your name"
@@ -179,8 +134,6 @@ const Contact = () => {
                     <input
                       type="email"
                       name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors"
                       placeholder="your.email@example.com"
@@ -195,8 +148,6 @@ const Contact = () => {
                   <input
                     type="text"
                     name="subject"
-                    value={formData.subject}
-                    onChange={handleInputChange}
                     required
                     className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors"
                     placeholder="Project inquiry / Collaboration / etc."
@@ -209,8 +160,6 @@ const Contact = () => {
                   </label>
                   <textarea
                     name="message"
-                    value={formData.message}
-                    onChange={handleInputChange}
                     required
                     rows={5}
                     className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors resize-none"
@@ -218,45 +167,23 @@ const Contact = () => {
                   />
                 </div>
 
+                {/* Hidden Fields for Options */}
+                <input type="hidden" name="_captcha" value="false" />
+                <input type="hidden" name="_next" value="https://www.niraj-yadav.com.np/thankyou.html" />
+
                 <motion.button
                   type="submit"
-                  disabled={isSubmitting}
-                  whileHover={!isSubmitting ? { scale: 1.02 } : {}}
-                  whileTap={!isSubmitting ? { scale: 0.98 } : {}}
-                  className={`w-full py-4 px-6 rounded-lg font-medium text-lg flex items-center justify-center gap-3 transition-all duration-300 ${isSubmitting
-                      ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                      : 'btn-glow'
-                    }`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full py-4 px-6 rounded-lg font-medium text-lg flex items-center justify-center gap-3 transition-all duration-300 btn-glow"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5" />
-                      Send Message
-                    </>
-                  )}
+                  <Send className="w-5 h-5" />
+                  Send Message
                 </motion.button>
               </form>
             </div>
           </motion.div>
         </div>
-
-        {/* Note about backend */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-12 text-center"
-        >
-          <p className="text-sm text-muted-foreground bg-muted/20 rounded-lg p-4 border border-primary/10">
-            <strong>Note:</strong> This contact form is currently a demo. To make it functional,
-            connect to Supabase or another backend service to handle form submissions.
-          </p>
-        </motion.div>
       </div>
     </section>
   );
