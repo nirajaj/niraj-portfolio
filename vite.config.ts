@@ -4,13 +4,14 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
+  base: "/", // 👈 VERY IMPORTANT for GitHub Pages + Custom Domain
   server: {
     host: "localhost",
-    port: 5173
+    port: 5173,
   },
   plugins: [
     react(),
-    mode === 'development' && componentTagger(),
+    mode === "development" && componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
